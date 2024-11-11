@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\WorkHistory;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -20,6 +21,8 @@ class AlumniController extends Controller
      */
     public function index(Request $request): View
     {
+        Gate::authorize('viewAny', Alumni::class);
+
         $paginate = 10;
 
         $query = Alumni::with(['user', 'school']);
@@ -50,6 +53,8 @@ class AlumniController extends Controller
      */
     public function create(): View
     {
+        Gate::authorize('create', Alumni::class);
+
         $schools = School::all();
 
         return view("dashboard.pages.alumnis.create", compact('schools'));
@@ -60,10 +65,11 @@ class AlumniController extends Controller
      */
     public function store(AlumniStoreRequest $request)
     {
+        Gate::authorize('create', Alumni::class);
+
         $dataAlumni = $request->validated();
 
         try {
-
             Alumni::create($dataAlumni);
 
             Alert::toast('Alumni created successfully!', 'success');
@@ -79,6 +85,8 @@ class AlumniController extends Controller
      */
     public function show(Alumni $alumni)
     {
+        Gate::authorize('view', $alumni);
+
         return view('dashboard.pages.alumnis.show.detail', compact('alumni'));
     }
 
@@ -87,6 +95,8 @@ class AlumniController extends Controller
      */
     public function edit(Alumni $alumni)
     {
+        Gate::authorize('update', $alumni);
+
         return view('dashboard.pages.alumnis.edit', compact('alumni'));
     }
 
@@ -95,10 +105,11 @@ class AlumniController extends Controller
      */
     public function update(AlumniUpdateRequest $request, Alumni $alumni)
     {
+        Gate::authorize('update', $alumni);
+
         $dataAlumni = $request->validated();
 
         try {
-
             Alumni::where('id', $alumni->id)->update($dataAlumni);
 
             Alert::toast('Alumni updated successfully!', 'success');
@@ -114,6 +125,8 @@ class AlumniController extends Controller
      */
     public function destroy(Alumni $alumni)
     {
+        Gate::authorize('delete', $alumni);
+
         School::findOrFail($alumni->id)->delete();
 
         Alert::toast('Alumni deleted successfully!', 'success');
